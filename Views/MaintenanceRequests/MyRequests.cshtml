@@ -1,0 +1,78 @@
+﻿
+@model IEnumerable<CampusFix.Models.MaintenanceRequest>
+
+@{
+    ViewData["Title"] = "My Requests";
+}
+
+<div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between
+                align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">My Maintenance Requests</h1>
+            <p class="text-muted mb-0">
+                View the maintenance issues you have reported.
+            </p>
+        </div>
+
+        <a asp-action="Create"
+           class="btn btn-primary">
+            + New Request
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string message)
+    {
+        <div class="alert alert-success" role="alert">
+            @message
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body text-center p-5">
+                <h2 class="h5">No requests yet</h2>
+                <p class="text-muted">
+                    Submit your first maintenance request to get started.
+                </p>
+                <a asp-action="Create"
+                   class="btn btn-primary">
+                    Submit a Request
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Title</th>
+                        <th>Location</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Date submitted (UTC)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var request in Model)
+                    {
+                        <tr>
+                            <td>@request.Title</td>
+                            <td>@request.Location</td>
+                            <td>@request.Category?.Name</td>
+                            <td>@request.Priority</td>
+                            <td>@request.Status</td>
+                            <td>
+                                @request.DateCreated.ToString("yyyy-MM-dd HH:mm")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

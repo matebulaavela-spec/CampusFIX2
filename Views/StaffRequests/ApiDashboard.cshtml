@@ -1,0 +1,177 @@
+﻿@{
+    ViewData["Title"] = "API Dashboard";
+}
+
+<div class="container py-4">
+    @await Component.InvokeAsync("RequestSummary")
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Maintenance API Dashboard</h1>
+            <p class="text-muted">
+                Requests are loaded from the CampusFix API using JavaScript.
+            </p>
+        </div>
+
+        <button id="refreshButton" class="btn btn-primary">
+            Refresh Requests
+        </button>
+    </div>
+
+    @Html.AntiForgeryToken()
+
+    <div id="message" class="alert alert-info" role="status">
+        Loading maintenance requests...
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Location</th>
+                    <th>Category</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Update Status</th>
+                </tr>
+            </thead>
+            <tbody id="requestsTable">
+                <tr>
+                    <td colspan="7">Loading...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const apiUrl = "/api/maintenance";
+        const table = document.getElementById("requestsTable");
+        const message = document.getElementById("message");
+        const refreshButton = document.getElementById("refreshButton");
+
+        function showMessage(text, type = "info") {
+            message.textContent = text;
+            message.className = "alert alert-" + type;
+        }
+
+        async function loadRequests() {
+            table.replaceChildren();
+            showMessage("Loading maintenance requests...");
+
+            try {
+                const response = await fetch(apiUrl, {
+                    headers: { "Accept": "application/json" }
+                });
+
+                if (!response.ok) {
+                    throw new Error("API returned HTTP " + response.status);
+                }
+
+                const requests = await response.json();
+
+                if (requests.length === 0) {
+                    showMessage("No maintenance requests found.", "secondary");
+                    return;
+                }
+
+                requests.forEach(request => {
+                    const row = document.createElement("tr");
+
+                    function addCell(value) {
+                        const cell = document.createElement("td");
+                        cell.textContent = value ?? "—";
+                        row.appendChild(cell);
+                    }
+
+                    addCell(request.id);
+                    addCell(request.title);
+                    addCell(request.location);
+                    addCell(request.category);
+                    addCell(request.priority);
+                    addCell(request.status);
+
+                    const actionCell = document.createElement("td");
+                    const select = document.createElement("select");
+                    select.className = "form-select mb-2";
+
+                    ["Submitted", "InProgress", "Completed"].forEach(status => {
+                        const option = document.createElement("option");
+                        option.value = status;
+                        option.textContent =
+                            status === "InProgress" ? "In Progress" : status;
+                        select.appendChild(option);
+                    });
+
+                    select.value = request.status;
+
+                    const saveButton = document.createElement("button");
+                    saveButton.className = "btn btn-sm btn-success";
+                    saveButton.textContent = "Save";
+
+                    saveButton.addEventListener("click", async () => {
+                        saveButton.disabled = true;
+
+                        try {
+                            const token = document.querySelector(
+                                'input[name="__RequestVerificationToken"]'
+                            ).value;
+
+                            const result = await fetch(
+                                `${apiUrl}/${request.id}/status`,
+                                {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                        "RequestVerificationToken": token
+                                    },
+                                    body: JSON.stringify({
+                                        status: select.value
+                                    })
+                                }
+                            );
+
+                            if (!result.ok) {
+                                throw new Error(
+                                    "Update failed: HTTP " + result.status
+                                );
+                            }
+
+                            showMessage(
+                                `Request #${request.id} updated successfully.`,
+                                "success"
+                            );
+
+                            await loadRequests();
+                        } catch (error) {
+                            showMessage(error.message, "danger");
+                        } finally {
+                            saveButton.disabled = false;
+                        }
+                    });
+
+                    actionCell.appendChild(select);
+                    actionCell.appendChild(saveButton);
+                    row.appendChild(actionCell);
+                    table.appendChild(row);
+                });
+
+                showMessage(
+                    `Loaded ${requests.length} maintenance request(s).`,
+                    "success"
+                );
+            } catch (error) {
+                showMessage(
+                    "Could not load requests. Check your login and API endpoint. " +
+                    error.message,
+                    "danger"
+                );
+            }
+        }
+
+        refreshButton.addEventListener("click", loadRequests);
+        loadRequests();
+    </script>
+}

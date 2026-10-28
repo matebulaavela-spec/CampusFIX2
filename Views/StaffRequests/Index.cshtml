@@ -1,0 +1,148 @@
+﻿
+@model IEnumerable<CampusFix.Models.MaintenanceRequest>
+@using CampusFix.Models
+
+@{
+    ViewData["Title"] = "Maintenance Dashboard";
+}
+
+<div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between
+                align-items-center mb-4 gap-2">
+        <div>
+            <h1 class="h2">Maintenance Dashboard</h1>
+            <p class="text-muted mb-0">
+                View requests and update their progress.
+            </p>
+        </div>
+
+        <span class="badge bg-primary fs-6">
+            Total requests: @Model.Count()
+        </span>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show"
+             role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            There are no maintenance requests yet.
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Request</th>
+                                <th>Student</th>
+                                <th>Location</th>
+                                <th>Category</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Submitted</th>
+                                <th>Update status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        @foreach (var request in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@request.Title</strong>
+                                    <div class="small text-muted">
+                                        ID: @request.Id
+                                    </div>
+                                </td>
+
+                                <td>
+                                    @(request.User?.FullName ?? "Unknown")
+                                </td>
+
+                                <td>@request.Location</td>
+
+                                <td>
+                                    @(request.Category?.Name ?? "Unknown")
+                                </td>
+
+                                <td>
+                                    @request.Priority
+                                </td>
+
+                                <td>
+                                    @if (request.Status == RequestStatus.Completed)
+                                    {
+                                        <span class="badge bg-success">
+                                            Completed
+                                        </span>
+                                    }
+                                    else if (request.Status == RequestStatus.InProgress)
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            In Progress
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            Submitted
+                                        </span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @request.DateCreated.ToLocalTime()
+                                        .ToString("dd MMM yyyy")
+                                </td>
+
+                                <td>
+                                    <form asp-controller="StaffRequests"
+                                          asp-action="UpdateStatus"
+                                          asp-route-id="@request.Id"
+                                          method="post">
+
+                                        <select name="status"
+                                                class="form-select form-select-sm mb-2"
+                                                aria-label="New request status">
+                                            <option value="Submitted"
+                                                selected="@(request.Status == RequestStatus.Submitted)">
+                                                Submitted
+                                            </option>
+                                            <option value="InProgress"
+                                                selected="@(request.Status == RequestStatus.InProgress)">
+                                                In Progress
+                                            </option>
+                                            <option value="Completed"
+                                                selected="@(request.Status == RequestStatus.Completed)">
+                                                Completed
+                                            </option>
+                                        </select>
+
+                                        <button type="submit"
+                                                class="btn btn-primary btn-sm w-100">
+                                            Save Status
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

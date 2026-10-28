@@ -1,0 +1,40 @@
+﻿
+@model CampusFix.ViewComponents.RequestSummaryViewModel
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100 border-primary">
+            <div class="card-body">
+                <h2 class="h6 text-muted">Total Requests</h2>
+                <p class="display-6 fw-bold mb-0">@Model.TotalRequests</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100 border-secondary">
+            <div class="card-body">
+                <h2 class="h6 text-muted">Submitted</h2>
+                <p class="display-6 fw-bold mb-0">@Model.SubmittedRequests</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100 border-warning">
+            <div class="card-body">
+                <h2 class="h6 text-muted">In Progress</h2>
+                <p class="display-6 fw-bold mb-0">@Model.InProgressRequests</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100 border-success">
+            <div class="card-body">
+                <h2 class="h6 text-muted">Completed</h2>
+                <p class="display-6 fw-bold mb-0">@Model.CompletedRequests</p>
+            </div>
+        </div>
+    </div>
+</div>

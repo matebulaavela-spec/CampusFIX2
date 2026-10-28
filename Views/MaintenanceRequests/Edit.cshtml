@@ -1,0 +1,101 @@
+﻿
+@model CampusFix.Models.RequestCreateViewModel
+
+@{
+    ViewData["Title"] = "Edit Maintenance Request";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white p-3">
+                    <h2 class="h4 mb-0">Edit Maintenance Request</h2>
+                </div>
+
+                <div class="card-body p-4">
+                    <p class="text-muted">
+                        Update your request details below.
+                    </p>
+
+                    <form asp-controller="MaintenanceRequests"
+                          asp-action="Edit"
+                          asp-route-id="@ViewBag.RequestId"
+                          method="post">
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Title"
+                                   class="form-label"></label>
+                            <input asp-for="Title"
+                                   class="form-control" />
+                            <span asp-validation-for="Title"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description"
+                                   class="form-label"></label>
+                            <textarea asp-for="Description"
+                                      class="form-control"
+                                      rows="5"></textarea>
+                            <span asp-validation-for="Description"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Location"
+                                   class="form-label"></label>
+                            <input asp-for="Location"
+                                   class="form-control" />
+                            <span asp-validation-for="Location"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CategoryId"
+                                   class="form-label"></label>
+                            <select asp-for="CategoryId"
+                                    asp-items="ViewBag.Categories"
+                                    class="form-select">
+                                <option value="">-- Select category --</option>
+                            </select>
+                            <span asp-validation-for="CategoryId"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Priority"
+                                   class="form-label"></label>
+                            <select asp-for="Priority"
+                                    asp-items="Html.GetEnumSelectList<CampusFix.Models.RequestPriority>()"
+                                    class="form-select"></select>
+                            <span asp-validation-for="Priority"
+                                  class="text-danger"></span>
+                        </div>
+
+                        @Html.AntiForgeryToken()
+
+                        <div class="d-flex gap-2">
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                Save Changes
+                            </button>
+
+                            <a asp-action="MyRequests"
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
